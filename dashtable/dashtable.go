@@ -15,7 +15,7 @@ import (
 type Dashtable[K comparable, V any] struct {
 	hash maphash.Hash
 
-	segments []*segment[K, V] // Segment Directory
+	segments []segment[K, V] // Segment Directory
 }
 
 // New returns a ready to use Dashtable.
@@ -30,7 +30,7 @@ func New[K comparable, V any](noMaxItem uint64) *Dashtable[K, V] {
 
 	dtb := &Dashtable[K, V]{
 		hash:     maphash.Hash{},
-		segments: make([]*segment[K, V], noOfSegments),
+		segments: make([]segment[K, V], noOfSegments),
 	}
 	dtb.hash.SetSeed(maphash.MakeSeed())
 	for i := range dtb.segments {
@@ -42,7 +42,7 @@ func New[K comparable, V any](noMaxItem uint64) *Dashtable[K, V] {
 func (dtb *Dashtable[K, V]) Set(key K, value V) {
 	keySum := dtb.Sum(key)
 	segmentIdx := keySum % uint64(len(dtb.segments))
-	homeSegment := dtb.segments[segmentIdx]
+	homeSegment := &dtb.segments[segmentIdx]
 	if isSet := homeSegment.set(keySum, key, value); isSet {
 		return // Happy case
 	}
@@ -54,7 +54,7 @@ func (dtb *Dashtable[K, V]) Set(key K, value V) {
 func (dtb *Dashtable[K, V]) Get(key K) (ok bool, value V) {
 	keySum := dtb.Sum(key)
 	segmentIdx := keySum % uint64(len(dtb.segments))
-	homeSegment := dtb.segments[segmentIdx]
+	homeSegment := &dtb.segments[segmentIdx]
 	return homeSegment.get(keySum, key)
 }
 
