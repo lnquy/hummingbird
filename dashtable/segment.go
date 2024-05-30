@@ -2,13 +2,13 @@ package dashtable
 
 type segment[K comparable, V any] struct {
 	// 0-56: Regular buckets
-	// 56:60: Stash buckets
-	buckets [60]*bucket[K, V]
+	// 56-60: Stash buckets
+	buckets [60]bucket[K, V]
 }
 
-func newSegment[K comparable, V any]() *segment[K, V] {
-	s := &segment[K, V]{
-		buckets: [60]*bucket[K, V]{},
+func newSegment[K comparable, V any]() segment[K, V] {
+	s := segment[K, V]{
+		buckets: [60]bucket[K, V]{},
 	}
 	for i := range s.buckets {
 		s.buckets[i] = newBucket[K, V]()
@@ -18,7 +18,7 @@ func newSegment[K comparable, V any]() *segment[K, V] {
 
 func (s *segment[K, V]) set(keySum uint64, key K, value V) (isSet bool) {
 	bucketIdx := keySum % 56 // First 56 buckets are the regular ones
-	bkt := s.buckets[bucketIdx]
+	bkt := &s.buckets[bucketIdx]
 	if isSetAtHomeBucket := bkt.set(key, value); isSetAtHomeBucket {
 		// Happy case, can put this item to its home bucket
 		return true
@@ -41,14 +41,14 @@ func (s *segment[K, V]) set(keySum uint64, key K, value V) (isSet bool) {
 		}
 	}
 
-	// Segment is full, couldn't put the current item in this segment as it's full.
+	// Segment is full, couldn't put the current item in this segment.
 	// Will need to handle segment split in this case.
 	return false
 }
 
 func (s *segment[K, V]) get(keySum uint64, key K) (ok bool, value V) {
 	bucketIdx := keySum % 56 // First 56 buckets are the regular ones
-	homeBucket := s.buckets[bucketIdx]
+	homeBucket := &s.buckets[bucketIdx]
 	if isFoundAtHomeBucket, value := homeBucket.get(key); isFoundAtHomeBucket {
 		// Happy case, found the item in its home bucket
 		return true, value

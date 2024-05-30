@@ -35,9 +35,17 @@ func BenchmarkMap_Get(b *testing.B) {
 	}
 }
 
+func BenchmarkGoSyncMap_Set(b *testing.B) {
+	m := sync.Map{}
+	noOfItems := 100_000
+	for i := 0; i < b.N; i++ {
+		m.Store(i%noOfItems, "benchmark")
+	}
+}
+
 var _syncMapValue any
 
-func BenchmarkGoSyncMap(b *testing.B) {
+func BenchmarkGoSyncMap_Get(b *testing.B) {
 	b.StopTimer()
 	var m sync.Map
 	noOfItems := 100_000
