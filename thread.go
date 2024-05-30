@@ -33,9 +33,10 @@ type thread[K comparable, V any] struct {
 }
 
 func newThread[K comparable, V any](name string, commandChan <-chan *command[K, V], noOfItemInShard uint64) *thread[K, V] {
+	dtb := dashtable.New[K, V](noOfItemInShard)
 	return &thread[K, V]{
 		name:        name,
-		dtb:         dashtable.New[K, V](noOfItemInShard),
+		dtb:         &dtb,
 		commandChan: commandChan,
 	}
 }
