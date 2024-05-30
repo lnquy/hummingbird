@@ -13,7 +13,7 @@ func TestDashtable(t *testing.T) {
 	}
 
 	for i := 0; i < noOfItems; i++ {
-		ok, v := dtb.Get(i)
+		ok, v := dtb.Get(int(i))
 		if !ok {
 			t.Errorf("Get(%d) got false, expected found item", i)
 			return
@@ -39,11 +39,12 @@ func TestDashtable(t *testing.T) {
 
 func BenchmarkDashtable_Set(b *testing.B) {
 	b.StopTimer()
-	dtb := New[int, string](100_000)
+	noOfItems := 100_000
+	dtb := New[int, string](uint64(noOfItems))
 	b.StartTimer()
 
 	for i := 0; i < b.N; i++ {
-		dtb.Set(i%100_000, "benchmark")
+		dtb.Set(i%noOfItems, "benchmark")
 	}
 }
 
@@ -54,13 +55,14 @@ var (
 
 func BenchmarkDashtable_Get(b *testing.B) {
 	b.StopTimer()
-	dtb := New[int, string](100_000)
-	for i := 0; i < 100_000; i++ {
-		dtb.Set(i%100_000, "benchmark")
+	noOfItems := 100_000
+	dtb := New[int, string](uint64(noOfItems))
+	for i := 0; i < noOfItems; i++ {
+		dtb.Set(i%noOfItems, "benchmark")
 	}
 	b.StartTimer()
 
 	for i := 0; i < b.N; i++ {
-		_ok, _value = dtb.Get(i % 100_000)
+		_ok, _value = dtb.Get(i % noOfItems)
 	}
 }

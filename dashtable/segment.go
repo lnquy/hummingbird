@@ -2,7 +2,7 @@ package dashtable
 
 type segment[K comparable, V any] struct {
 	// 0-56: Regular buckets
-	// 56:60: Stash buckets
+	// 56-60: Stash buckets
 	buckets [60]bucket[K, V]
 }
 
@@ -41,7 +41,7 @@ func (s *segment[K, V]) set(keySum uint64, key K, value V) (isSet bool) {
 		}
 	}
 
-	// Segment is full, couldn't put the current item in this segment as it's full.
+	// Segment is full, couldn't put the current item in this segment.
 	// Will need to handle segment split in this case.
 	return false
 }
